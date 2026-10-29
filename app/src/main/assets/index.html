@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173d32">
+  <meta name="description" content="Órdenes de trabajo por voz, con almacenamiento local y exportación.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>OrdenaPro · Órdenes de trabajo</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">OT</div>
+    <div><h1>OrdenaPro</h1><p>Órdenes de trabajo</p></div>
+    <span class="offline-pill" id="connectionState">Modo local</span>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <p class="eyebrow">MANTENIMIENTO · PARTE DIGITAL</p>
+      <h2>Menos papeleo.<br><span>Más tiempo trabajando.</span></h2>
+      <p>Dicta el trabajo, revisa los datos y guarda tu parte en este dispositivo.</p>
+      <button id="newOrderBtn" class="primary">＋ Nueva orden de trabajo</button>
+    </section>
+
+    <section class="panel" id="formPanel">
+      <div class="section-heading">
+        <div><p class="eyebrow">NUEVO REGISTRO</p><h2 id="formTitle">Orden de trabajo</h2></div>
+        <span class="draft-badge">Borrador</span>
+      </div>
+
+      <label for="voiceText">Describe el trabajo con tu voz</label>
+      <p class="hint">Ejemplo: “Cliente Taller Norte, máquina 3. Reparada fuga de aire, cambiados dos racores de 8 milímetros. 45 minutos”.</p>
+      <div class="voice-row">
+        <button type="button" class="voice-btn" id="voiceBtn"><span id="micIcon">🎙</span> <span id="voiceLabel">Dictar parte</span></button>
+        <span id="voiceStatus" class="hint" aria-live="polite">El dictado depende del navegador.</span>
+      </div>
+      <textarea id="voiceText" rows="3" placeholder="La transcripción aparecerá aquí. También puedes escribirla…"></textarea>
+      <button type="button" class="secondary small" id="parseBtn">Rellenar campos desde el texto</button>
+
+      <div class="form-grid">
+        <div class="field"><label for="client">Cliente *</label><input id="client" autocomplete="organization" placeholder="Nombre del cliente"></div>
+        <div class="field"><label for="site">Centro / ubicación</label><input id="site" placeholder="Fábrica, nave, dirección…"></div>
+        <div class="field"><label for="machine">Máquina / equipo</label><input id="machine" placeholder="Máquina 3"></div>
+        <div class="field"><label for="technician">Técnico</label><input id="technician" placeholder="Nombre del técnico"></div>
+        <div class="field full"><label for="fault">Avería o solicitud</label><input id="fault" placeholder="Fuga de aire, revisión, montaje…"></div>
+        <div class="field full"><label for="workDone">Trabajo realizado *</label><textarea id="workDone" rows="3" placeholder="Describe la reparación o tarea realizada"></textarea></div>
+        <div class="field"><label for="date">Fecha</label><input id="date" type="date"></div>
+        <div class="field"><label for="minutes">Tiempo empleado (minutos)</label><input id="minutes" type="number" min="0" step="5" placeholder="45"></div>
+      </div>
+
+      <div class="section-heading materials-heading">
+        <div><p class="eyebrow">CONSUMO</p><h3>Material utilizado</h3></div>
+        <button type="button" class="secondary small" id="addMaterialBtn">＋ Añadir material</button>
+      </div>
+      <p class="hint">Introduce la referencia real cuando la conozcas. La app no inventa referencias.</p>
+      <div id="materialsList" class="materials-list"></div>
+
+      <div class="field"><label for="notes">Observaciones</label><textarea id="notes" rows="2" placeholder="Pruebas realizadas, recomendaciones, pendientes…"></textarea></div>
+      <div class="form-actions">
+        <button type="button" class="primary" id="saveBtn">Guardar orden</button>
+        <button type="button" class="secondary" id="clearBtn">Limpiar formulario</button>
+      </div>
+      <p id="formMessage" class="message" role="status"></p>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">REGISTROS DE ESTE DISPOSITIVO</p><h2>Historial de órdenes</h2></div>
+        <span class="count" id="orderCount">0</span>
+      </div>
+      <div class="toolbar">
+        <input id="searchOrders" type="search" placeholder="Buscar cliente, máquina o referencia…" aria-label="Buscar órdenes">
+        <button type="button" class="secondary small" id="exportCsvBtn">Exportar CSV</button>
+        <button type="button" class="secondary small" id="backupBtn">Copia JSON</button>
+        <label class="file-button secondary small">Importar copia<input type="file" id="importFile" accept=".json,application/json"></label>
+      </div>
+      <div id="ordersList" class="orders-list"></div>
+      <p class="hint">Los datos se guardan en este navegador. Exporta copias de seguridad periódicamente.</p>
+    </section>
+
+    <section class="notice">
+      <strong>Importante para equipos:</strong> esta primera versión no sincroniza entre técnicos. Cada dispositivo mantiene sus propios registros hasta que importes/exportes copias. La sincronización compartida será una fase posterior.
+    </section>
+  </main>
+
+  <footer><span>OrdenaPro · Prototipo gratuito</span><span>Datos guardados localmente</span></footer>
+  <template id="materialTemplate">
+    <div class="material-row">
+      <div class="field"><label>Material / descripción</label><input class="mat-name" placeholder="Racor neumático Ø8"></div>
+      <div class="field"><label>Referencia</label><input class="mat-ref" placeholder="Referencia fabricante"></div>
+      <div class="field qty-field"><label>Cantidad</label><input class="mat-qty" type="number" min="0" step="any" value="1"></div>
+      <div class="field"><label>Unidad</label><select class="mat-unit"><option>ud.</option><option>m</option><option>cm</option><option>l</option><option>kg</option><option>juego</option></select></div>
+      <button type="button" class="remove-material" aria-label="Eliminar material">×</button>
+    </div>
+  </template>
+  <script src="app.js"></script>
+</body>
+</html>
